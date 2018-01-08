@@ -1,0 +1,27 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "koa",
+    "express",
+    "node",
+    "fastify"
+  ],
+  "author": "neil",
+  "license": "ISC",
+  "devDependencies": {
+    "express": "^4.16.2",
+    "fastify": "^0.38.0",
+    "koa": "^2.4.1",
+    "koa-static": "^4.0.2",
+    "server-static": "^2.0.5"
+  }
+}
