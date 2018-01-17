@@ -1,33 +1,139 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-    <meta charset="utf-8" />
-    <title>socket.io</title>
-    <link href="index.css" rel="stylesheet">
-</head>
+	<head>
+		<meta charset="utf-8" />
+		<title>canvas画图</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<style type="text/css">
+			input,
+			button {
+				width: 100%;
+			}
+			
+			#coefficient {
+				width: 200px;
+				position: absolute;
+				top: 50px;
+				left: 560px;
+			}
+			
+			#coefficient>* {
+				margin: 5px;
+			}
+		</style>
+	</head>
 
-<body>
-    <h3>socket.io</h3>
-    <button id="send">发送消息到服务器</button>
-    <div>
-        <p>服务器返回的消息是：</p>
-        <i id="msg"></i>
-    </div>
-    <script src="socket.io.js"></script>
-    <script>
-        var socket = io("ws://localhost:3000"); //初始化websocket，连接服务端
-        var send = document.querySelector("#send"),
-			msg = document.querySelector("#msg");
-        send.onclick = function () {
-            console.log("点击了发送消息！");
-            socket.emit("send", "hello")
-        }
-        socket.on("getMsg", function (data) {
-            console.log("服务端发送的消息是：", data);
-            msg.innerHTML += data + '<br/>';
-        })
-    </script>
-</body>
+	<body>
+		<div>
+			<canvas id="myCanvas"></canvas>
+			<div id="coefficient">
+				<p>起始坐标:<i id="star"></i></p>
+				<p>结束坐标:<i id="end"></i></p>
+				<p>长度:<i id="length"></i></p>
+				<p>弹跳系数(可以微调改变)</p>
+				<input type="text" name="" id="coe" value="1.223" />
+				<button>弹跳</button>
+			</div>
+		</div>
+		<script src="socket.io.js"></script>
+		<script>
+			var socket = io("ws://localhost:3000"); //初始化websocket，连接服务端
+			socket.on("size", load)
+			socket.on("reloadImg", reload);
+			
+			
+			
+			
+			var canvas = document.getElementById("myCanvas"), //要用到的元素
+				star = document.getElementById("star"),
+				end = document.getElementById("end"),
+				length = document.getElementById("length"),
+				input = document.querySelector('input'),
+				button = document.querySelector("button");
+			var img = new Image(); //创建要用到的img元素
+			var starX = 0,
+				starY = 0,
+				endX = 0,
+				endY = 0,
+				time = 0,
+				w = 0,
+				h = 0,
+				ctx = null; //创建要用到的几个数值
+
+			function load(size) {
+				w = size.width, h = size.height;
+				canvas.height = h / 2;
+				canvas.width = w / 2;
+				ctx = canvas.getContext("2d"); //canvas的宽高确定后才创建context
+				ctx.scale(0.5, 0.5);
+				img.src = 'img/screenshot.png?hash=' + generateMixed(10);
+				img.onload = imgLoad;
+			}
+
+			function imgLoad() {
+				ctx.drawImage(img, 0, 0);
+				canvas.addEventListener('mousedown', down);
+				button.onclick = jump;
+				window.onkeydown = jump;
+			}
+
+			function reload() {
+				img.src = 'img/screenshot.png?hash=' + generateMixed(10);
+				starX = 0, starY = 0, endX = 0, endY = 0, time = 0;
+				star.innerText = "";
+				end.innerText = "";
+				length.innerText = "";
+			}
+
+			function jump() {
+				if(time) {
+					console.log("时间是" + time);
+					socket.emit('submit',{time:time});
+					time = 0;
+				}
+			}
+
+			function down(e) {
+				starX = e.offsetX * 2, starY = e.offsetY * 2;
+				star.innerText = "(" + starX + ", " + starY + ")";
+				canvas.addEventListener('mousemove', move);
+				canvas.addEventListener('mouseup', up)
+			}
+
+			function move(e) {
+				endX = e.offsetX * 2, endY = e.offsetY * 2;
+				ctx.clearRect(0, 0, 1080, 1920)
+				ctx.drawImage(img, 0, 0);
+				ctx.beginPath();
+				ctx.moveTo(starX, starY);
+				ctx.lineTo(endX, endY);
+				ctx.stroke();
+			}
+
+			function up(e) {
+				canvas.removeEventListener('mousemove', move);
+				canvas.removeEventListener('mouseup', up);
+
+				var x = Math.abs(endX - starX),
+					y = Math.abs(endY - starY),
+					l = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+				end.innerText = "(" + endX + ", " + endY + ")";
+				length.innerText = " " + Math.floor(l) + "px";
+				time = Math.floor(l * input.value);
+			}
+
+			function generateMixed(n) { //得到hash随机数
+				var chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+				var res = "";
+				for(var i = 0; i < n; i++) {
+					var id = Math.ceil(Math.random() * 35);
+					res += chars[id];
+				}
+				return res;
+			}
+		</script>
+		</script>
+	</body>
 
 </html>
