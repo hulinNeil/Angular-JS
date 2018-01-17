@@ -1,10 +1,10 @@
 socket.io是封装websocket的框架，用于服务端与客户端的相互通讯。[官网:https://socket.io/](https://socket.io/);
 下面是socket.io的用法：
-1、由于使用express开的本地服务，先下载相关依赖
+- 1、由于使用express开的本地服务，先下载相关依赖
 ```
 cnpm install express socket.io
 ```
-2、服务端代码
+- 2、服务端代码
 ```
 const express = require("express");
 const io = require("socket.io");
@@ -30,7 +30,7 @@ sockets.on("connection",function(socket){
 	},5000)
 });
 ```
-3、客户端代码
+- 3、客户端代码
 ```
 <button id="send">发送消息到服务器</button>
 <div>
@@ -53,7 +53,7 @@ sockets.on("connection",function(socket){
 </script>
 
 ```
-4、执行
+- 4、执行
 ```
 node index.js
 ```
