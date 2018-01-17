@@ -6,7 +6,6 @@ class wx_jump {
 			express:require("express"),
 			path:require("path"),
 			socketIo:require("socket.io"),
-			// adbPath:"D:\\HBuilder\\tools\\adbs\\adb.exe"
 			adbPath:"D:\\HBuilder-alpha\\HBuilder\\tools\\adbs\\adb.exe"
 		}
 		
